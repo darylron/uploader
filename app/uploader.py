@@ -9,16 +9,9 @@ bp = Blueprint(
     'upload', __name__, url_prefix='/upload')
 
 
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
-
-
-def allowed_file(filename):
-    return '.' in filename and (
-        filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS)
-
-
 @bp.route('/image', methods=['GET', 'POST'])
 def image_file():
+    filename = ''
     if request.method == 'POST':
         # Only files with file type part will be accepted.
         if 'file' not in request.files:
@@ -33,13 +26,10 @@ def image_file():
             flash('No selected file')
             return redirect(request.url)
 
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(
-                current_app.config['UPLOAD_FOLDER'], filename))
+        if file:
             c_img = compressor.ImageFile(
-                current_app.config['UPLOAD_FOLDER'], filename)
+                current_app.config['UPLOAD_FOLDER'], file)
             c_img.StandardSize()
-            c_img.Thumbnail()
+            filename = c_img.Thumbnail()
 
-    return render_template('uploader.html')
+    return render_template('uploader.html', data={'filename': filename})
