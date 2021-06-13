@@ -1,5 +1,8 @@
 <!doctype html>
 <title>Upload new File</title>
+{% for msg in get_flashed_messages() %}
+<h1>{{ msg }}</h1>
+{% endfor %}
 <h1>Upload new File</h1>
 <form method=post enctype=multipart/form-data>
   <input type=file name=file>

@@ -53,7 +53,3 @@ def UploadFile(filename: str, bucket: str, object_name: str=None) -> bool:
         return False
 
     return True
-
-
-if __name__ == '__main__':
-    UploadFile('samplefile.json', 'secretairbucket')

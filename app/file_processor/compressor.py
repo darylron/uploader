@@ -6,7 +6,10 @@ import os
 from PIL import Image
 import time
 from werkzeug.datastructures import FileStorage
+from . import s3uploader
 
+
+AWS_S3_IMAGE_BUCKET = 'secretairbucket'
 
 def GetFileExtension(filename: str) -> tuple:
     if '.' in filename:
@@ -31,7 +34,7 @@ class ImageFile(object):
 
     def __init__(self, path: str, file: FileStorage):
         if not IsAllowedFile(file.filename, self.allowed_types):
-            raise FileTypeError('Only images %s allowed.' % allowed_types)
+            raise FileTypeError('Only images %s are allowed.' % self.allowed_types)
 
         name, img_type = GetFileExtension(file.filename)
         new_name = str(int(time.time() * 1000000)) + '.' + img_type
@@ -62,6 +65,7 @@ class ImageFile(object):
         """        
         img = self._Resize(self.detail_width)
         img.save(self.new_name, optimize=True, quality=50)
+        s3uploader.UploadFile(filename=self.new_name, bucket=AWS_S3_IMAGE_BUCKET)
         return self.new_name
 
     def Thumbnail(self) -> str:
@@ -75,4 +79,5 @@ class ImageFile(object):
 
         # Save thumbnail as new image file.
         img.save(self.thumdnail_name, optimize=True, quality=20)
+        s3uploader.UploadFile(filename=self.thumdnail_name, bucket=AWS_S3_IMAGE_BUCKET)
         return self.thumdnail_name

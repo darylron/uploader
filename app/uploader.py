@@ -27,9 +27,13 @@ def image_file():
             return redirect(request.url)
 
         if file:
-            c_img = compressor.ImageFile(
-                current_app.config['UPLOAD_FOLDER'], file)
-            c_img.StandardSize()
-            filename = c_img.Thumbnail()
+            try:
+                c_img = compressor.ImageFile(
+                    current_app.config['UPLOAD_FOLDER'], file)
+                c_img.StandardSize()
+                filename = c_img.Thumbnail()
+            except compressor.FileTypeError as e:
+                flash(str(e))
+                redirect(request.url)
 
     return render_template('uploader.html', data={'filename': filename})
