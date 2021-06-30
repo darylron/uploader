@@ -28,8 +28,8 @@ class FileTypeError(Exception):
 
 class ImageFile(object):
 
-    thumbnail_width = 300
-    detail_width = 300
+    thumbnail_width = 200
+    detail_width = 600
     allowed_types = {'png', 'jpg', 'jpeg'}
 
     def __init__(self, path: str, file: FileStorage):
@@ -41,7 +41,7 @@ class ImageFile(object):
 
         self.file = file
         self.new_name = os.path.join(path, new_name)
-        self.thumdnail_name = os.path.join(path, 'thumbnails', new_name)
+        self.thumbnail_name = os.path.join(path, 'thumbnails', new_name)
 
     def _Resize(self, base_width: float) -> Image:
         """Resizes image file."""
@@ -78,6 +78,6 @@ class ImageFile(object):
         img = self._Resize(self.thumbnail_width)
 
         # Save thumbnail as new image file.
-        img.save(self.thumdnail_name, optimize=True, quality=20)
-        s3uploader.UploadFile(filename=self.thumdnail_name, bucket=AWS_S3_IMAGE_BUCKET)
-        return self.thumdnail_name
+        img.save(self.thumbnail_name, optimize=True, quality=20)
+        s3uploader.UploadFile(filename=self.thumbnail_name, bucket=AWS_S3_IMAGE_BUCKET)
+        return self.thumbnail_name
