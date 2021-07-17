@@ -2,7 +2,7 @@
 import os
 from flask import Blueprint, current_app, Flask, flash, render_template, request, redirect, url_for
 from werkzeug.utils import secure_filename
-from .file_processor import compressor
+from .img_processor import compressor
 
 
 bp = Blueprint(
@@ -10,7 +10,7 @@ bp = Blueprint(
 
 
 @bp.route('/image', methods=['GET', 'POST'])
-def image_file():
+def image():
     filename = ''
     if request.method == 'POST':
         # Only files with file type part will be accepted.

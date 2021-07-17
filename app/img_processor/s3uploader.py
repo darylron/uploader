@@ -5,6 +5,9 @@ import logging
 import uuid
 
 
+AWS_S3_IMAGE_BUCKET = os.environ['AWS_S3_IMAGE_BUCKET']
+
+
 def CreateBucket(bucket_prefix: str, s3_connection: object) -> (str, str):
     """Creates S3 Bucket.
 
@@ -29,12 +32,11 @@ def CreateBucket(bucket_prefix: str, s3_connection: object) -> (str, str):
     return bucket_name, current_region
 
 
-def UploadFile(filename: str, bucket: str, object_name: str=None) -> bool:
+def UploadFile(filename: str, object_name: str=None) -> bool:
     """Uploads file to S3 Bucket.
 
     Args:
         filename: File to upload
-        bucket: Bucket to upload to.
         object_name: S3 object name. If not specified then filename.
 
     Returns:
@@ -47,7 +49,7 @@ def UploadFile(filename: str, bucket: str, object_name: str=None) -> bool:
     # Upload the file
     s3_client = boto3.client('s3')
     try:
-        response = s3_client.upload_file(filename, bucket, object_name)
+        response = s3_client.upload_file(filename, AWS_S3_IMAGE_BUCKET, object_name)
     except ClientError as e:
         logging.error(e)
         return False

@@ -9,7 +9,7 @@ from werkzeug.datastructures import FileStorage
 from . import s3uploader
 
 
-AWS_S3_IMAGE_BUCKET = 'secretairbucket'
+AWS_S3_IMAGE_BUCKET = os.environ['AWS_S3_IMAGE_BUCKET']
 
 def GetFileExtension(filename: str) -> tuple:
     if '.' in filename:
@@ -29,7 +29,7 @@ class FileTypeError(Exception):
 class ImageFile(object):
 
     thumbnail_width = 200
-    detail_width = 600
+    larger_width = 600
     allowed_types = {'png', 'jpg', 'jpeg'}
 
     def __init__(self, path: str, file: FileStorage):
@@ -51,19 +51,14 @@ class ImageFile(object):
         hsize = int((float(dimention[1]) * float(ratio)))
         img.resize((self.thumbnail_width, hsize), Image.ANTIALIAS)
         return img
-
-    def StandardSize(self, width: int=None, height: int=None) -> str:
-        """Compresses images.
         
-        Args:
-            width: image width in pixels.
-            heigth: image height in pixels.
+    def StandardSize(self) -> str:
+        """Compresses images to predefined size.
 
         Returns:
             Image new file name.
-
-        """        
-        img = self._Resize(self.detail_width)
+        """
+        img = self._Resize(self.larger_width)
         img.save(self.new_name, optimize=True, quality=50)
         s3uploader.UploadFile(filename=self.new_name, bucket=AWS_S3_IMAGE_BUCKET)
         return self.new_name
@@ -73,7 +68,6 @@ class ImageFile(object):
 
         Returns:
             Image new file name.
-
         """
         img = self._Resize(self.thumbnail_width)
 
@@ -81,3 +75,20 @@ class ImageFile(object):
         img.save(self.thumbnail_name, optimize=True, quality=20)
         s3uploader.UploadFile(filename=self.thumbnail_name, bucket=AWS_S3_IMAGE_BUCKET)
         return self.thumbnail_name
+
+
+        
+    def CustomSize(self, width: int=None) -> str:
+        """Compresses images to custom size.
+        
+        Args:
+            width: image width in pixels, if none will use predefined size.
+
+        Returns:
+            Image new file name.
+        """
+        img_width = width if width is not None else self.larger_width
+        img = self._Resize(img_width)
+        img.save(self.new_name, optimize=True, quality=50)
+        s3uploader.UploadFile(filename=self.new_name, bucket=AWS_S3_IMAGE_BUCKET)
+        return self.new_name

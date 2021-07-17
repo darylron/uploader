@@ -41,13 +41,10 @@ def create_app(test_config=None):
     def index():
         return 'HOME - Hello, World!'
 
-    from . import db
-    db.init_app(app)
-
-    from . import auth
-    app.register_blueprint(auth.bp)
-
     from . import uploader
     app.register_blueprint(uploader.bp)
 
     return app
+
+
+Routes = create_app()
